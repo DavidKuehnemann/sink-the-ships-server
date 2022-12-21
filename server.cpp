@@ -33,6 +33,9 @@ void Server::startRead(){
   if ( socket->canReadLine() )
   {
       QStringList tokens = QString( socket->readLine() ).split( QRegularExpression( "[ \r\n][ \r\n]*" ) );
+      qDebug() << "Request has been made";
+      if(sizeof(tokens) >= 2)
+      {
           if (tokens[1].split("/")[1] == "api")
           {
               if ( tokens[0] == "PUT" )
@@ -49,15 +52,27 @@ void Server::startRead(){
           {
               delete socket;
           }
+      }
+
   }
 }
 
 void Server::handleGetApi(QTcpSocket *socket,QString request)
 {
-    QString route = request.split("?")[0];
-    QString params = request.split("?")[1];
+    QString route;
+    QString params;
+    if (request.contains("?"))
+    {
+        route = request.split("?")[0];
+        params = request.split("?")[1];
+    }
+    else
+    {
+        route = request;
+        params = "";
+    }
 
-    qDebug() << "You tried accessing: " + route + " with Params: " + params;
+    qDebug() << "GET Request on: " + route + " with Params: " + params;
     QTextStream os( socket );
     os.setAutoDetectUnicode( true );
     os << "HTTP/1.0 200 Ok\r\n"
@@ -70,10 +85,20 @@ void Server::handleGetApi(QTcpSocket *socket,QString request)
 
 void Server::handlePutApi(QTcpSocket *socket, QString request)
 {
-    QString route = request.split("?")[0];
-    QString params = request.split("?")[1];
+    QString route;
+    QString params;
+    if (request.contains("?"))
+    {
+        route = request.split("?")[0];
+        params = request.split("?")[1];
+    }
+    else
+    {
+        route = request;
+        params = "";
+    }
 
-    qDebug() << "You tried accessing: " + route + " with Params: " + params;
+    qDebug() << "PUT Request on: " + route + " with Params: " + params;
     QTextStream os( socket );
     os.setAutoDetectUnicode( true );
     os << "HTTP/1.0 200 Ok\r\n"
